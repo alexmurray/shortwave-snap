@@ -15,6 +15,8 @@ slots:
     interface: dbus
     bus: session
     name: de.haeckerfelix.Shortwave
+  mpris:
+    name: Shortwave
 
 environment:
   XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
@@ -32,14 +34,6 @@ plugs:
     interface: content
     target: $SNAP/share/sounds
     default-provider: gtk-common-themes
-
-slots:
-  shortwave:
-    interface: dbus
-    bus: session
-    name: de.haeckerfelix.Shortwave
-  mpris:
-    name: Shortwave
 
 apps:
   shortwave:
