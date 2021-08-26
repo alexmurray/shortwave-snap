@@ -21,70 +21,22 @@ slots:
 environment:
   XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
 
-plugs:
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/share/themes
-    default-provider: gtk-common-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/share/icons
-    default-provider: gtk-common-themes
-  sound-themes:
-    interface: content
-    target: $SNAP/share/sounds
-    default-provider: gtk-common-themes
-
 apps:
   shortwave:
+    extensions: [gnome-3-38]
     command: usr/bin/shortwave
-    command-chain: [bin/desktop-launch]
     desktop: usr/share/applications/de.haeckerfelix.Shortwave.desktop
     plugs:
       - home
       - network
       - audio-playback
-      - desktop
-      - desktop-legacy
-      - gsettings
-      - x11
-      - wayland
     slots:
       - mpris
 
 parts:
-  # until a gnome extension exists that supports core20, manually use
-  # desktop-gtk3 from snapcraft-desktop-helpers
-  desktop-gtk3:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-type: git
-    source-subdir: gtk
-    plugin: make
-    make-parameters: ["FLAVOR=gtk3"]
-    build-packages:
-      - libgtk-3-dev
-    stage-packages:
-      - libxkbcommon0  # XKB_CONFIG_ROOT
-      - ttf-ubuntu-font-family
-      - dmz-cursor-theme
-      - light-themes
-      - adwaita-icon-theme
-      - gnome-themes-standard
-      - shared-mime-info
-      - libgtk-3-0
-      - libgdk-pixbuf2.0-0
-      - libglib2.0-bin
-      - libgtk-3-bin
-      - unity-gtk3-module
-      - libappindicator3-1
-      - locales-all
-      - xdg-user-dirs
-      - ibus-gtk3
-      - libibus-1.0-5
   shortwave:
     source: https://gitlab.gnome.org/World/Shortwave/uploads/df12909bb42afbff933e45da0f220eb4/shortwave-1.1.1.tar.xz
     plugin: meson
-    after: [desktop-gtk3]
     meson-parameters: [--prefix=/snap/shortwave/current/usr]
     organize:
       snap/shortwave/current/usr: usr
@@ -119,7 +71,10 @@ parts:
     override-build: |
       # snapd can't use a name like de.haeckerfelix.Shortwave for mpris
       # (since it contains periods) so instead make this just Shortwave
-      sed -i 's|MprisPlayer::new(config::APP_ID.to_string()|MprisPlayer::new(config::NAME.to_string()|' src/audio/controller/mpris_controller.rs
+      sed -i 's|MprisPlayer::new(config::APP_ID.to_string()|MprisPlayer::new(config::NAME.to_string()|' ../src/src/audio/controller/mpris_controller.rs
+      # cope with deleted branch on source repo
+      sed -i 's|branch = "update_cargo_version"|rev = "62e7abf44d419cf3fe83da64285f2905da4e333e"|' ../src/Cargo.toml
+      sed -i 's|branch=update_cargo_version|branch=master|' ../src/Cargo.lock
       snapcraftctl build
 
     override-prime: |
