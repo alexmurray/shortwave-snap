@@ -1,0 +1,5 @@
+#!/bin/sh
+# the gnome-platform snap sets GTK_USE_PORTAL=1 unconditionally, however
+# with this set shortwave fails to be able to open any media URIs so
+# disable this as it is not needed as shortwave works fine without it
+GTK_USE_PORTAL=0 $SNAP/usr/bin/shortwave

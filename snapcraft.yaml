@@ -24,7 +24,7 @@ environment:
 apps:
   shortwave:
     extensions: [gnome-3-38]
-    command: usr/bin/shortwave
+    command: shortwave
     desktop: usr/share/applications/de.haeckerfelix.Shortwave.desktop
     plugs:
       - home
@@ -63,6 +63,8 @@ parts:
       - gstreamer1.0-plugins-good
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-ugly
+      - libglu1-mesa
+      - freeglut3
       - libhandy-0.0-0
       - liborc-0.4-0
       - libgl1
@@ -82,3 +84,7 @@ parts:
       snapcraftctl prime
       # Fix-up application icon lookup
       sed -i.bak -e 's|^Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/de.haeckerfelix.Shortwave.svg|' usr/share/applications/de.haeckerfelix.Shortwave.desktop
+
+  wrapper:
+    plugin: dump
+    source: wrapper
