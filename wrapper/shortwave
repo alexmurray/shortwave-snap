@@ -1,5 +1,17 @@
 #!/bin/sh
-# the gnome-platform snap sets GTK_USE_PORTAL=1 unconditionally, however
-# with this set shortwave fails to be able to open any media URIs so
-# disable this as it is not needed as shortwave works fine without it
-GTK_USE_PORTAL=0 $SNAP/usr/bin/shortwave
+if [ "$SNAP_ARCH" = "amd64" ]; then
+  ARCH="x86_64-linux-gnu"
+elif [ "$SNAP_ARCH" = "armhf" ]; then
+  ARCH="arm-linux-gnueabihf"
+elif [ "$SNAP_ARCH" = "arm64" ]; then
+  ARCH="aarch64-linux-gnu"
+elif [ "$SNAP_ARCH" = "ppc64el" ]; then
+  ARCH="powerpc64le-linux-gnu"
+else
+  ARCH="$SNAP_ARCH-linux-gnu"
+fi
+export SNAP_LAUNCHER_ARCH_TRIPLET=$ARCH
+
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/local/lib/$SNAP_LAUNCHER_ARCH_TRIPLET"
+
+exec "$SNAP/usr/bin/shortwave"

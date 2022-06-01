@@ -1,10 +1,10 @@
 name: shortwave
-version: 1.1.1
+version: 3.0.0
 summary: Find and listen to internet radio stations
 description: |
  Shortwave is an internet radio player that provides access to a station
  database with over 25,000 stations.
-base: core20
+base: core22
 grade: stable
 confinement: strict
 license: GPL-3.0+
@@ -18,28 +18,46 @@ slots:
   mpris:
     name: Shortwave
 
-environment:
-  XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
-
 apps:
   shortwave:
-    extensions: [gnome-3-38]
+    environment:
+      XDG_DATA_DIRS: $SNAP/share:$XDG_DATA_DIRS
     command: shortwave
+    extensions: [gnome]
     desktop: usr/share/applications/de.haeckerfelix.Shortwave.desktop
+    common-id: de.haeckerfelix.Shortwave
     plugs:
       - home
       - network
+      - network-status
       - audio-playback
+      - screen-inhibit-control
     slots:
       - mpris
 
 parts:
-  shortwave:
-    source: https://gitlab.gnome.org/World/Shortwave/uploads/df12909bb42afbff933e45da0f220eb4/shortwave-1.1.1.tar.xz
+  shumate:
+    source: https://gitlab.gnome.org/GNOME/libshumate/-/archive/1.0.0.alpha.1/libshumate-1.0.0.alpha.1.tar.bz2
     plugin: meson
-    meson-parameters: [--prefix=/snap/shortwave/current/usr]
+    meson-parameters:
+      - --wrap-mode=nodownload
+    build-packages:
+      - meson
+      - ninja-build
+      - libgtk-4-dev
+      - libsqlite3-dev
+      - libsoup-3.0-dev
+      - gi-docgen
+
+  shortwave:
+    after: [shumate]
+    source: https://gitlab.gnome.org/World/Shortwave/-/archive/3.0.0/Shortwave-3.0.0.tar.bz2
+    plugin: meson
+    meson-parameters:
+      - --prefix=/snap/shortwave/current/usr
+    parse-info: [usr/share/metainfo/de.haeckerfelix.Shortwave.xml]
     organize:
-      snap/shortwave/current/usr: usr
+      snap/shortwave/current: .
     build-packages:
       - intltool
       - gettext
@@ -53,9 +71,11 @@ parts:
       - libgstreamer1.0-dev
       - libgstreamer-plugins-base1.0-dev
       - libgstreamer-plugins-bad1.0-dev
-      - libhandy-0.0-dev
+      - libadwaita-1-dev
+      - libhandy-1-dev
       - cargo
       - git
+      - desktop-file-utils
     stage-packages:
       - libgstreamer-plugins-base1.0-0
       - libgstreamer1.0-0
@@ -65,23 +85,21 @@ parts:
       - gstreamer1.0-plugins-ugly
       - libglu1-mesa
       - freeglut3
-      - libhandy-0.0-0
+      - libhandy-1-0
+      - libadwaita-1-0
       - liborc-0.4-0
       - libgl1
       - libglvnd0
       - libglx0
-    override-build: |
+    override-pull: |
+      craftctl default
       # snapd can't use a name like de.haeckerfelix.Shortwave for mpris
       # (since it contains periods) so instead make this just Shortwave
-      sed -i 's|MprisPlayer::new(config::APP_ID.to_string()|MprisPlayer::new(config::NAME.to_string()|' ../src/src/audio/controller/mpris_controller.rs
-      # cope with deleted branch on source repo
-      sed -i 's|branch = "update_cargo_version"|rev = "62e7abf44d419cf3fe83da64285f2905da4e333e"|' ../src/Cargo.toml
-      sed -i 's|branch=update_cargo_version|branch=master|' ../src/Cargo.lock
-      snapcraftctl build
+      sed -i 's/config::APP_ID.to_string()/config::NAME.to_string()/' src/audio/controller/mpris_controller.rs
 
     override-prime: |
       set -eu
-      snapcraftctl prime
+      craftctl default
       # Fix-up application icon lookup
       sed -i.bak -e 's|^Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/de.haeckerfelix.Shortwave.svg|' usr/share/applications/de.haeckerfelix.Shortwave.desktop
 
