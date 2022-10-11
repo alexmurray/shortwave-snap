@@ -77,20 +77,66 @@ parts:
       - git
       - desktop-file-utils
     stage-packages:
-      - libgstreamer-plugins-base1.0-0
-      - libgstreamer1.0-0
+      - freeglut3
+      - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-base
       - gstreamer1.0-plugins-good
-      - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-ugly
-      - libglu1-mesa
-      - freeglut3
-      - libhandy-1-0
+      - liba52-0.7.4
       - libadwaita-1-0
-      - liborc-0.4-0
+      - libaom3
+      - libass9
+      - libbs2b0
+      - libcdio19
+      - libchromaprint1
+      - libdc1394-25
+      - libdca0
+      - libde265-0
+      - libdvdnav4
+      - libdvdread8
+      - libfaad2
+      - libflite1
+      - libfluidsynth3
+      - libfreeaptx0
       - libgl1
+      - libglu1-mesa
       - libglvnd0
       - libglx0
+      - libgme0
+      - libgsm1
+      - libgstreamer-plugins-bad1.0-0
+      - libgstreamer-plugins-base1.0-0
+      - libgstreamer1.0-0
+      - libhandy-1-0
+      - libkate1
+      - libldacbt-enc2
+      - liblilv-0-0
+      - libltc11
+      - libmjpegutils-2.1-0
+      - libmodplug1
+      - libmpcdec6
+      - libmpeg2-4
+      - libopenal1
+      - libopencore-amrnb0
+      - libopencore-amrwb0
+      - libopenexr25
+      - libopenh264-6
+      - libopenni2-0
+      - liborc-0.4-0
+      - libqrencode4
+      - libsbc1
+      - libsidplay1v5
+      - libsoundtouch1
+      - libspandsp2
+      - libsrt1.4-gnutls
+      - libsrtp2-1
+      - libusb-1.0-0
+      - libvo-aacenc0
+      - libvo-amrwbenc0
+      - libx264-163
+      - libx265-199
+      - libzbar0
+      - libzvbi0
     override-pull: |
       craftctl default
       # snapd can't use a name like de.haeckerfelix.Shortwave for mpris
