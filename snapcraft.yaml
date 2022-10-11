@@ -9,6 +9,10 @@ grade: stable
 confinement: strict
 license: GPL-3.0+
 
+architectures:
+  - amd64
+  - arm64
+
 slots:
   # for GtkApplication registration
   shortwave:
