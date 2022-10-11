@@ -25,7 +25,7 @@ apps:
     desktop: usr/share/applications/de.haeckerfelix.Shortwave.desktop
     common-id: de.haeckerfelix.Shortwave
     environment:
-      LD_LIBRARY_PATH: ${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH}:$SNAP/usr/local/lib/$CRAFT_ARCH_TRIPLET
+      LD_LIBRARY_PATH: $SNAP/usr/local/lib/$CRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     plugs:
       - home
       - network
