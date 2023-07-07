@@ -1,5 +1,5 @@
 name: shortwave
-version: 3.0.0
+version: 3.2.0
 summary: Find and listen to internet radio stations
 description: |
  Shortwave is an internet radio player that provides access to a station
@@ -54,7 +54,7 @@ parts:
 
   shortwave:
     after: [shumate]
-    source: https://gitlab.gnome.org/World/Shortwave/-/archive/3.0.0/Shortwave-3.0.0.tar.bz2
+    source: https://gitlab.gnome.org/World/Shortwave/-/archive/3.2.0/Shortwave-3.2.0.tar.bz2
     plugin: meson
     meson-parameters:
       - --prefix=/snap/shortwave/current/usr
@@ -73,8 +73,6 @@ parts:
       - libgstreamer1.0-dev
       - libgstreamer-plugins-base1.0-dev
       - libgstreamer-plugins-bad1.0-dev
-      - libadwaita-1-dev
-      - libhandy-1-dev
       - cargo
       - git
       - desktop-file-utils
@@ -85,7 +83,6 @@ parts:
       - gstreamer1.0-plugins-good
       - gstreamer1.0-plugins-ugly
       - liba52-0.7.4
-      - libadwaita-1-0
       - libaom3
       - libass9
       - libbs2b0
@@ -109,7 +106,6 @@ parts:
       - libgstreamer-plugins-bad1.0-0
       - libgstreamer-plugins-base1.0-0
       - libgstreamer1.0-0
-      - libhandy-1-0
       - libkate1
       - libldacbt-enc2
       - liblilv-0-0
@@ -150,3 +146,5 @@ parts:
       craftctl default
       # Fix-up application icon lookup
       sed -i.bak -e 's|^Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/de.haeckerfelix.Shortwave.svg|' usr/share/applications/de.haeckerfelix.Shortwave.desktop
+      # Use the Gnome extension's version
+      rm -f usr/lib/*/libharfbuzz.so*
