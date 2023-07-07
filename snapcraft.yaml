@@ -30,8 +30,6 @@ apps:
     extensions: [gnome]
     desktop: usr/share/applications/de.haeckerfelix.Shortwave.desktop
     common-id: de.haeckerfelix.Shortwave
-    environment:
-      LD_LIBRARY_PATH: $SNAP/usr/local/lib/$CRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     plugs:
       - home
       - network
@@ -43,17 +41,16 @@ apps:
 
 parts:
   shumate:
-    source: https://gitlab.gnome.org/GNOME/libshumate/-/archive/1.0.0.alpha.1/libshumate-1.0.0.alpha.1.tar.bz2
+    source: https://gitlab.gnome.org/GNOME/libshumate/-/archive/1.0.3/libshumate-1.0.3.tar.bz2
     plugin: meson
     meson-parameters:
+      - --buildtype=release
+      - --prefix=/usr
+      - --strip
       - --wrap-mode=nodownload
-    build-packages:
-      - meson
-      - ninja-build
-      - libgtk-4-dev
-      - libsqlite3-dev
-      - libsoup-3.0-dev
-      - gi-docgen
+      - -Dgir=false
+      - -Dvapi=false
+      - -Dgtk_doc=false
 
   shortwave:
     after: [shumate]
@@ -69,7 +66,6 @@ parts:
       - gettext
       - gnome-common
       - rustc
-      - libsqlite3-dev
       - libssl-dev
       - appstream
       - libappstream-glib-dev
