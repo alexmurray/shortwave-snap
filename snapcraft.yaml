@@ -62,20 +62,13 @@ parts:
     organize:
       snap/shortwave/current: .
     build-packages:
-      - intltool
-      - gettext
-      - gnome-common
       - rustc
       - libssl-dev
-      - appstream
-      - libappstream-glib-dev
-      - libappstream-dev
       - libgstreamer1.0-dev
       - libgstreamer-plugins-base1.0-dev
       - libgstreamer-plugins-bad1.0-dev
       - cargo
       - git
-      - desktop-file-utils
     stage-packages:
       - freeglut3
       - gstreamer1.0-plugins-bad
