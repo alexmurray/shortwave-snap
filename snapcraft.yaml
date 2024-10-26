@@ -4,16 +4,26 @@ summary: Find and listen to internet radio stations
 description: |
  Shortwave is an internet radio player that provides access to a station
  database with over 25,000 stations.
-base: core22
+base: core24
 grade: stable
 confinement: strict
 license: GPL-3.0+
 
-architectures:
-  - build-on: amd64
-    build-for: amd64
-  - build-on: arm64
-    build-for: arm64
+# gnome extension snap is only available on amd64/arm64/armhf
+platforms:
+  amd64:
+  arm64:
+  armhf:
+
+layout:
+  /usr/share/libdrm:
+    bind: $SNAP/gpu-2404/libdrm
+
+plugs:
+  gpu-2404:
+    interface: content
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
 
 slots:
   # for GtkApplication registration
@@ -27,10 +37,13 @@ slots:
 apps:
   shortwave:
     command: usr/bin/shortwave
+    command-chain:
+    - bin/gpu-2404-wrapper
     extensions: [gnome]
     desktop: usr/share/applications/de.haeckerfelix.Shortwave.desktop
     common-id: de.haeckerfelix.Shortwave
     plugs:
+      - gpu-2404
       - home
       - network
       - network-status
@@ -39,21 +52,9 @@ apps:
     slots:
       - mpris
 
-parts:
-  shumate:
-    source: https://gitlab.gnome.org/GNOME/libshumate/-/archive/1.0.3/libshumate-1.0.3.tar.bz2
-    plugin: meson
-    meson-parameters:
-      - --buildtype=release
-      - --prefix=/usr
-      - --strip
-      - --wrap-mode=nodownload
-      - -Dgir=false
-      - -Dvapi=false
-      - -Dgtk_doc=false
 
+parts:
   shortwave:
-    after: [shumate]
     source: https://gitlab.gnome.org/World/Shortwave/-/archive/3.2.0/Shortwave-3.2.0.tar.bz2
     plugin: meson
     meson-parameters:
@@ -63,12 +64,15 @@ parts:
       snap/shortwave/current: .
     build-packages:
       - rustc
+      - libshumate-dev
       - libssl-dev
       - libgstreamer1.0-dev
       - libgstreamer-plugins-base1.0-dev
       - libgstreamer-plugins-bad1.0-dev
       - cargo
       - git
+    stage-packages:
+      - libshumate-1.0-1
     override-pull: |
       craftctl default
       # snapd can't use a name like de.haeckerfelix.Shortwave for mpris
@@ -82,10 +86,11 @@ parts:
       sed -i.bak -e 's|^Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/de.haeckerfelix.Shortwave.svg|' usr/share/applications/de.haeckerfelix.Shortwave.desktop
 
   gstreamer-plugins:
+    after: [shortwave]
     plugin: nil
     build-snaps:
-      - core22
-      - gnome-42-2204
+      - core24
+      - gnome-46-2404
     stage-packages:
       - gstreamer1.0-plugins-bad
       - gstreamer1.0-plugins-base
@@ -94,11 +99,21 @@ parts:
     override-build: |
       set -eux
       craftctl default
-      for snap in "core22" "gnome-42-2204"; do
-        cd /snap/$snap/current/usr/lib/$CRAFT_ARCH_TRIPLET
-        find . -type f,l -name "*.so*" -exec bash -c "rm -f $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET/{}*" \;
+      for snap in "core24" "gnome-46-2404"; do
+        cd /snap/$snap/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+        find . -type f,l -name "*.so*" -exec bash -c "rm -f $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/{}*" \;
       done
     prime:
       - usr/lib/$CRAFT_ARCH_TRIPLET/*.so*
       - usr/lib/$CRAFT_ARCH_TRIPLET/*/*.so*
+
+  gpu-2404:
+    after: [gstreamer-plugins]
+    source: https://github.com/canonical/gpu-snap.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/gpu-2404-cleanup mesa-2404
+    prime:
+    - bin/gpu-2404-wrapper
 
