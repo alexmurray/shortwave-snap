@@ -54,7 +54,37 @@ apps:
 
 
 parts:
+  gtk4:
+    source: https://download.gnome.org/sources/gtk/4.16/gtk-4.16.3.tar.xz
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+    build-packages:
+      - glslc
+    override-pull: |
+      craftctl default
+      sed -i "s/'redundant-decls',/#'redundant-decls',/" meson.build
+
+  shumate:
+    source: https://gitlab.gnome.org/GNOME/libshumate/-/archive/1.3.0/libshumate-1.3.0.tar.bz2
+    plugin: meson
+    meson-parameters:
+      - --buildtype=release
+      - --prefix=/usr
+      - --strip
+      - --wrap-mode=nodownload
+      - -Dgir=false
+      - -Dvapi=false
+      - -Dgtk_doc=false
+    build-packages:
+      - gperf
+      - libprotobuf-c-dev
+    stage-packages:
+      - libprotobuf-c1
+      - libsysprof-6-6
+
   shortwave:
+    after: [gtk4, shumate]
     source: https://gitlab.gnome.org/World/Shortwave/-/archive/$CRAFT_PROJECT_VERSION/Shortwave-$CRAFT_PROJECT_VERSION.tar.bz2
     plugin: meson
     meson-parameters:
@@ -65,19 +95,19 @@ parts:
     build-snaps:
       - rustup
     build-packages:
-      - libshumate-dev
       - libssl-dev
       - libgstreamer1.0-dev
       - libgstreamer-plugins-base1.0-dev
       - libgstreamer-plugins-bad1.0-dev
       - git
     stage-packages:
-      - libshumate-1.0-1
+      - libproxy1v5
     override-pull: |
       craftctl default
       # snapd can't use a name like de.haeckerfelix.Shortwave for mpris
       # (since it contains periods) so instead make this just Shortwave
       sed -i 's/Player::builder(config::APP_ID)/Player::builder(config::NAME)/' src/audio/mpris.rs
+
     override-build: |
       rustup default stable
       craftctl default
@@ -87,6 +117,11 @@ parts:
       craftctl default
       # Fix-up application icon lookup
       sed -i.bak -e 's|^Icon=.*|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/de.haeckerfelix.Shortwave.svg|' usr/share/applications/de.haeckerfelix.Shortwave.desktop
+
+    stage:
+      # don't duplicate bits from the gtk4 or shumate parts
+      - -usr/lib/x86_64-linux-gnu/gtk-4.0/4.0.0/printbackends/libprintbackend-file.so
+      - -usr/lib/x86_64-linux-gnu/libgtk-4.so.1
 
   gstreamer-plugins:
     after: [shortwave]
