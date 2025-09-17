@@ -110,6 +110,8 @@ parts:
   gstreamer-plugins:
     after: [shortwave]
     plugin: nil
+    build-packages:
+      - execstack
     build-snaps:
       - core24
       - gnome-46-2404
@@ -124,6 +126,14 @@ parts:
       for snap in "core24" "gnome-46-2404"; do
         cd /snap/$snap/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
         find . -type f,l -name "*.so*" -exec bash -c "rm -f $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/{}*" \;
+      done
+    override-prime: |
+      craftctl default
+      # try remove execstack on armhf
+      for f in libdirect-1.7.so.7.0.0 libmpeg2.so.0.1.0; do
+        if [ -f usr/lib/arm-linux-gnueabihf/$f ]; then
+          execstack -c $f
+        fi
       done
     prime:
       - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/*.so*
